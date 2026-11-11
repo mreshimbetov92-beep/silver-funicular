@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import { analyzeFunction as analyze, parseFunction, realRoots } from '../src/app/function-engine.ts';
+const near=(a,b)=>assert(Math.abs(a-b)<1e-6,`${a} ≈ ${b}`);
+let r=analyze('x^3-3*x');
+assert.equal(r.parity,'Toq');assert.equal(r.extrema.length,2);near(r.extrema[0].x,-1);near(r.extrema[0].y,2);near(r.extrema[1].y,-2);assert.deepEqual(r.inflections,[{x:0,y:0}]);assert.equal(r.leftInfinity,-Infinity);assert.equal(r.rightInfinity,Infinity);
+r=analyze('x^2');assert.equal(r.parity,'Juft');assert.deepEqual(r.range,[{lo:0,hi:Infinity,left:true,right:false}]);assert.equal(r.inflections.length,0);
+r=analyze('1/x');assert.deepEqual(r.excludedPoints,[0]);assert.equal(r.discontinuities[0].left,-Infinity);assert.equal(r.discontinuities[0].right,Infinity);assert.equal(r.range.length,2);assert.equal(r.range[0].right,false);assert.equal(r.range[1].left,false);assert(r.monotonic.every(i=>i.sign===-1));
+r=analyze('(x^2+1)/(x-1)');assert.equal(r.asymptote,'x +1');assert.equal(r.extrema.length,2);near(r.range[0].hi,2-2*Math.sqrt(2));near(r.range[1].lo,2+2*Math.sqrt(2));assert.equal(r.poles[0],1);
+r=analyze('(x^2-1)/(x-1)');assert.deepEqual(r.roots,[-1]);assert.equal(r.discontinuities[0].kind,'Bartaraf qilinadigan uzilish');near(r.discontinuities[0].left,2);assert.equal(r.range.length,2);assert.equal(r.range[0].hi,2);assert.equal(r.range[0].right,false);
+r=analyze('1/(1/x)');assert.deepEqual(r.excludedPoints,[0]);assert(Number.isNaN(r.f(0)));assert.equal(r.range.length,2);assert.deepEqual(r.roots,[]);
+r=analyze('(x^2)/(x^2)');assert(r.constant);assert.deepEqual(r.range,[{lo:1,hi:1,left:true,right:true}]);assert.deepEqual(r.excludedPoints,[0]);
+r=analyze('0');assert(r.allZeros);assert.equal(r.parity,'Juft va toq');assert.deepEqual(r.range,[{lo:0,hi:0,left:true,right:true}]);
+r=analyze('x^4-4*x^2');assert.equal(r.extrema.length,3);near(r.range[0].lo,-4);assert.equal(r.inflections.length,2);
+r=analyze('x^-2');assert.equal(r.discontinuities[0].left,Infinity);assert.equal(r.discontinuities[0].right,Infinity);assert.deepEqual(r.range,[{lo:0,hi:Infinity,left:false,right:false}]);
+near(analyze('-x^2').f(2),-4);near(analyze('2x(x+1)').f(2),12);assert.deepEqual(realRoots([1,-2,1]),[1]);
+for(const input of ['sin(x)','alert(1)','x/0','x^99','x;process.exit()','(x+1','x^2^3'])assert.throws(()=>parseFunction(input));
+console.log('PASS: polynomial/rational analysis, ranges, parity, roots, extrema, inflections, asymptotes, removable holes, nested-domain exclusions and safe parser.');

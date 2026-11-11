@@ -1,4 +1,4 @@
-# Idrok — adaptiv ta’lim demo sayti
+# Idrok 2.0 — talabalar uchun adaptiv ta’lim
 
 Mustaqil Node.js serverida ishlaydigan nusxa. Saytga kirishda ChatGPT hisobi yoki ChatGPT plaginlari talab qilinmaydi. Bu paketning o‘zi domen yaratmaydi: internet manzili hostingga joylangandan keyin beriladi.
 
@@ -11,6 +11,39 @@ Mustaqil Node.js serverida ishlaydigan nusxa. Saytga kirishda ChatGPT hisobi yok
 - Serverda tekshiriladigan demo login; 8 soatlik imzolangan HttpOnly sessiya.
 
 Natijalar shu brauzerning localStorage xotirasida saqlanadi; qurilmalar o‘rtasida almashilmaydi. O‘qituvchi jadvalidagi guruh — namuna. Bu demo haqiqiy imtihonlarni nazorat qilish yoki o‘zgartirib bo‘lmaydigan baholarni saqlash tizimi emas.
+
+## 2.0 yangiliklari
+
+- **Talaba paneli:** interfeysdagi o‘quvchi/sinf nomlari talaba/guruhga almashtirildi.
+- **PDF materiallar:** PDF yuklash, sahifalarni o‘qish, qidirish, yuklab olish va o‘chirish. Bitta fayl 20 MB, kutubxona 60 MB gacha. Fayl brauzer IndexedDB xotirasida saqlanadi. Boshqa talabalar yoki boshqa qurilmalarga avtomatik tarqalmaydi; sayt manzili o‘zgarsa eski manzildagi fayllar yangi manzilda ko‘rinmaydi.
+- **PDF bo‘yicha SI:** dastlabki 150 sahifadan, jami 180 000 belgigacha matn olinadi. Savolga mos sahifalardan taxminan 22 000 belgigacha parcha tanlanib yuboriladi. Rasmli/skanerlangan PDF uchun OCR ulanmagan; interfeys buni ko‘rsatadi. Asl PDFning barcha sahifalarini o‘qish mumkin.
+- **SI yordamchi:** haqiqiy OpenAI Responses API bilan server orqali ishlaydi. Kalit qo‘yilmaganda “SI ulanmagan” holati chiqadi; tayyor sun’iy javob haqiqiy SI deb ko‘rsatilmaydi.
+- **Funksiyani to‘la tekshirish:** ko‘phad va ratsional funksiyalar (surat/maxraj darajasi 6 gacha), aniqlanish va qiymatlar sohasi, simmetriya, nollar va ishora, birinchi/ikkinchi hosila, monotonlik, ekstremumlar, egilish/burilish, limit va asimptotalar, masshtabi o‘zgaradigan grafik, TXT hisobot. Ildiz va koordinatalar sonli-taqribiy. `sin`, `ln`, `sqrt` kabi ifodalar avtomatik hisoblagichga kiritilmaydi; ular SI yordamchisida muhokama qilinadi.
+
+## SI ulash — sayt egasi uchun
+
+Render’dagi ushbu xizmatning **Environment** sozlamasiga quyidagilarni qo‘shing va **Save, rebuild, and deploy** yoki mos saqlash/ishga tushirish amalini bajaring:
+
+| Muhit o‘zgaruvchisi | Qiymat |
+| --- | --- |
+| `OPENAI_API_KEY` | O‘zingizning OpenAI API kalitingiz |
+| `OPENAI_MODEL` | `gpt-4.1-mini` (ixtiyoriy; standart model) |
+| `AI_REQUESTS_PER_HOUR` | `20` (ixtiyoriy; barcha demo foydalanuvchilariga umumiy limit) |
+
+API kalitini https://platform.openai.com/api-keys sahifasida boshqaring. Kalitni GitHub fayliga yoki brauzer kodiga yozmang. API foydalanishi provayder tariflari va hisobingizdagi ruxsat/kvotaga bog‘liq. Model nomini hisobingizda mavjud boshqa mos modelga almashtirish mumkin.
+
+Mahalliy ishlatishda shu qiymatlarni `.env` fayliga yozib, serverni qayta ishga tushiring. `OPENAI_API_KEY` Blueprint’da ataylab majburiy qilinmagan: sayt va funksiya hisoblagichi SI kalitisiz ham ishlaydi.
+
+SIga faqat foydalanuvchi “SIga yuborish” tugmasini bosganda savol va tanlangan PDF matn parchalari jo‘natiladi. Server yangi SI API’ga kirishni imzolangan demo sessiyasi va Origin bilan tekshiradi, bitta javobni 2200 chiqish tokeni bilan cheklaydi. Soatlik limit server xotirasida: qayta ishga tushganda yangilanadi. Xarajatlarni qat’iy cheklash uchun API hisobingizda ham limit belgilang. “Kalit sozlangan” holati kalit mavjudligini bildiradi; kalit/kvota yaroqliligi birinchi so‘rovda tekshiriladi.
+
+## GitHub/Render’dagi mavjud nusxani yangilash
+
+1. Yangilangan ZIPni alohida papkaga oching.
+2. `silver-funicular` repository’sining **Code → Add file → Upload files** bo‘limiga o‘ting.
+3. `Idrok_adaptiv_demo` ichidagi fayl va **papkalarni** birga yuklang. `src`, `lib`, `config`, `public`, `scripts`, `tests` papkalari va `package.json`, `package-lock.json`, `render.yaml` repository ildizida bo‘lsin. Mahalliy `.env` va `node_modules` yuklanmaydi.
+4. `src` ichida `main.tsx` va `app` ko‘rinsin. Papkani to‘liq sudrab tashlash uning tuzilishini saqlaydi. `Failed to resolve /src/main.tsx` xatosi fayl noto‘g‘ri joyga yuklanganida chiqadi.
+5. O‘zgarishlarni saqlang (Commit changes). Render’da **Manual Deploy → Deploy latest commit** ni ishga tushiring. Mavjud xizmatni o‘chirish kerak emas.
+6. SI uchun Environment’ga yuqoridagi kalitni qo‘shing. Saytdagi “SI yordamchi” orqali sinang.
 
 ## Kompyuterda darhol tekshirish
 
@@ -77,9 +110,9 @@ npm run build
 npm test
 ```
 
-`src/app/` — interfeys va savollar; `lib/demo-session.ts` — demo kirish; `server.mjs` — Node serveri; `render.yaml` — joylash sozlamalari.
+`src/app/` — interfeys, PDF kutubxonasi va funksiya hisoblagichi; `lib/demo-session.ts` — demo kirish; `server.mjs` — Node serveri; `render.yaml` — joylash sozlamalari.
 
-Tekshiruvlar: TypeScript va production build; to‘g‘ri/noto‘g‘ri kirish; sessiya imzosi va muddati; boshqa manbadan so‘rovni rad qilish; HTTPS cookie; chiqish; statik fayllar; maxfiy fayllarni berkitish.
+Tekshiruvlar: TypeScript va production build; to‘g‘ri/noto‘g‘ri kirish; sessiya imzosi va muddati; boshqa manbadan so‘rovni rad qilish; HTTPS cookie; chiqish; statik fayllar; maxfiy fayllarni berkitish; ratsional funksiyalarning kutilgan natijalari; SI kirish nazorati, so‘rov cheklovlari, kvota va xatolar. SI API testi sun’iy test javoblari bilan bajariladi; haqiqiy provayder javobi uchun foydalanuvchining API kaliti zarur.
 
 Rasmiy yo‘riqnomalar (2026-11-10 da tekshirilgan):
 

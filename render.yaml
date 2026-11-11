@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: idrok-adaptiv-demo
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 24.22.1
+      - key: IDROK_DEMO_SESSION_SECRET
+        generateValue: true

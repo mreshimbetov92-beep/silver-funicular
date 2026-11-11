@@ -1,0 +1,36 @@
+import assert from 'node:assert/strict';
+import { createHmac, pbkdf2Sync } from 'node:crypto';
+import { handleDemoSession, COOKIE_NAME, SESSION_SECONDS } from '../lib/demo-session.ts';
+const origin='https://idrok.test';
+const secrets={IDROK_DEMO_EMAIL:'test@example.com',IDROK_DEMO_PASSWORD:'test-only-password',IDROK_DEMO_SESSION_SECRET:'test-only-signing-secret-1234567890'};
+const request=(method='GET',body,extra={})=>new Request(origin+'/api/demo-session',{method,headers:{origin,'content-type':'application/json',...extra},...(body!==undefined?{body:JSON.stringify(body)}:{})});
+let response=await handleDemoSession(request(),secrets);
+assert.deepEqual(await response.json(),{authenticated:false});
+assert.equal(response.headers.get('cache-control'),'no-store, private');
+for(const body of [{email:'bad@example.com',password:secrets.IDROK_DEMO_PASSWORD},{email:secrets.IDROK_DEMO_EMAIL,password:'wrong'},null,{email:1,password:2}]){
+ const r=await handleDemoSession(request('POST',body),secrets); assert([400,401].includes(r.status)); assert.equal(r.headers.get('set-cookie'),null);
+}
+assert.equal((await handleDemoSession(request('POST',{email:secrets.IDROK_DEMO_EMAIL,password:secrets.IDROK_DEMO_PASSWORD},{origin:'https://other.test'}),secrets)).status,403);
+assert.equal((await handleDemoSession(request('POST',{email:secrets.IDROK_DEMO_EMAIL,password:secrets.IDROK_DEMO_PASSWORD}),{})).status,503);
+response=await handleDemoSession(request('POST',{email:' TEST@EXAMPLE.COM ',password:secrets.IDROK_DEMO_PASSWORD}),secrets);
+assert.equal(response.status,200);
+assert.deepEqual(await response.json(),{authenticated:true});
+const cookie=response.headers.get('set-cookie');
+for(const flag of ['HttpOnly','SameSite=Strict','Secure',`Max-Age=${SESSION_SECONDS}`])assert(cookie.includes(flag));
+const authCookie=cookie.split(';')[0];
+assert.deepEqual(await (await handleDemoSession(request('GET',undefined,{cookie:authCookie}),secrets)).json(),{authenticated:true});
+assert.deepEqual(await (await handleDemoSession(request('GET',undefined,{cookie:authCookie+'x'}),secrets)).json(),{authenticated:false});
+const expired=Buffer.from(JSON.stringify({aud:'idrok-demo',email:secrets.IDROK_DEMO_EMAIL,exp:Date.now()-1000})).toString('base64url');
+const sig=createHmac('sha256',secrets.IDROK_DEMO_SESSION_SECRET).update(expired).digest('base64url');
+assert.deepEqual(await (await handleDemoSession(request('GET',undefined,{cookie:`${COOKIE_NAME}=${expired}.${sig}`}),secrets)).json(),{authenticated:false});
+response=await handleDemoSession(request('DELETE'),secrets);assert(response.headers.get('set-cookie').includes('Max-Age=0'));
+assert.equal((await handleDemoSession(request('DELETE',undefined,{origin:'https://other.test'}),secrets)).status,403);
+console.log('PASS: valid/invalid credentials, malformed input, origin protection, secret availability, signed cookie, tampering, expiry, logout and cache policy.');
+const salt = '01'.repeat(16);
+const passwordHash = pbkdf2Sync(secrets.IDROK_DEMO_PASSWORD, Buffer.from(salt, 'hex'), 210000, 32, 'sha256').toString('hex');
+const hashedSecrets = { ...secrets, IDROK_DEMO_PASSWORD:undefined, IDROK_DEMO_PASSWORD_HASH:`pbkdf2-sha256:210000:${salt}:${passwordHash}` };
+assert.equal((await handleDemoSession(request('POST', { email:secrets.IDROK_DEMO_EMAIL, password:secrets.IDROK_DEMO_PASSWORD }), hashedSecrets)).status, 200);
+assert.equal((await handleDemoSession(request('POST', { email:secrets.IDROK_DEMO_EMAIL, password:'wrong' }), hashedSecrets)).status, 401);
+assert.equal((await handleDemoSession(request('POST', { email:'other@example.com', password:secrets.IDROK_DEMO_PASSWORD }), hashedSecrets)).status, 401);
+assert.equal((await handleDemoSession(request('POST', { email:secrets.IDROK_DEMO_EMAIL, password:secrets.IDROK_DEMO_PASSWORD }), { ...hashedSecrets, IDROK_DEMO_PASSWORD_HASH:'invalid' })).status, 401);
+console.log('PASS: PBKDF2 account, wrong password, wrong email and malformed hash.');

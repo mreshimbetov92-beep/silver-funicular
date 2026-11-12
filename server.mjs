@@ -4,14 +4,15 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { resolve, sep, extname } from 'node:path';
 import { handleDemoSession } from './lib/demo-session.ts';
 import demoAccount from './config/demo-account.json' with { type: 'json' };
+import { createAIHandler } from './lib/ai-service.mjs';
 
 const root = fileURLToPath(new URL('./dist/', import.meta.url));
-const types = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.svg':'image/svg+xml', '.png':'image/png', '.ico':'image/x-icon', '.woff2':'font/woff2' };
+const types = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.mjs':'text/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.svg':'image/svg+xml', '.png':'image/png', '.ico':'image/x-icon', '.woff2':'font/woff2', '.wasm':'application/wasm' };
 const baseHeaders = {
   'X-Content-Type-Options': 'nosniff',
   'Referrer-Policy': 'same-origin',
   'X-Frame-Options': 'DENY',
-  'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+  'Content-Security-Policy': "default-src 'self'; script-src 'self'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; frame-src 'self' blob:; font-src 'self' blob:; connect-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
 };
 
 export function createAppServer(environment = process.env) {
@@ -19,6 +20,7 @@ export function createAppServer(environment = process.env) {
   const port = Number(environment.PORT || 3000);
   // Use the configured public origin so HTTPS cookies and CSRF checks also work behind Render's proxy.
   const origin = new URL(environment.APP_ORIGIN || environment.RENDER_EXTERNAL_URL || `http://localhost:${port}`).origin;
+  const handleAI = createAIHandler(environment);
   return http.createServer(async (req, res) => {
     const send = (status, body, headers = {}) => {
       res.writeHead(status, { ...baseHeaders, 'Cache-Control': 'no-store', ...headers });
@@ -30,24 +32,24 @@ export function createAppServer(environment = process.env) {
         if (!['GET', 'HEAD'].includes(req.method)) return send(405, '', { Allow: 'GET, HEAD' });
         return send(200, JSON.stringify({ status:'ok' }), { 'Content-Type':'application/json' });
       }
-      if (pathname === '/api/demo-session') {
+      if (pathname === '/api/demo-session' || pathname === '/api/ai') {
         if (!['GET', 'POST', 'DELETE'].includes(req.method)) return send(405, '', { Allow:'GET, POST, DELETE' });
         const chunks = [];
         let size = 0;
         for await (const chunk of req) {
           size += chunk.length;
-          if (size > 4096) return send(413, JSON.stringify({ error:'So‘rov hajmi juda katta.' }), { 'Content-Type':'application/json' });
+          if (size > (pathname === '/api/ai' ? 150000 : 4096)) return send(413, JSON.stringify({ error:'So‘rov hajmi juda katta.' }), { 'Content-Type':'application/json' });
           chunks.push(chunk);
         }
         const headers = new Headers();
         for (const [key, value] of Object.entries(req.headers)) {
           if (value !== undefined) headers.set(key, Array.isArray(value) ? value.join(', ') : value);
         }
-        const request = new Request(origin + '/api/demo-session', {
+        const request = new Request(origin + pathname, {
           method: req.method, headers,
           ...(req.method === 'POST' ? { body:Buffer.concat(chunks).toString('utf8') } : {})
         });
-        const result = await handleDemoSession(request, environment);
+        const result = pathname === '/api/ai' ? await handleAI(request) : await handleDemoSession(request, environment);
         return send(result.status, Buffer.from(await result.arrayBuffer()), Object.fromEntries(result.headers));
       }
       if (!['GET', 'HEAD'].includes(req.method)) return send(405, '', { Allow:'GET, HEAD' });

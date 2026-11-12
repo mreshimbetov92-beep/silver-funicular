@@ -39,6 +39,11 @@ try {
   const session = await fetch(url + '/api/demo-session', { headers:{ Cookie:cookie.split(';')[0] } });
   assert.deepEqual(await session.json(), { authenticated:true });
   assert.match(session.headers.get('cache-control'), /no-store/);
+  assert.equal((await fetch(url + '/api/ai')).status, 401);
+  const aiHeaders = { Cookie:cookie.split(';')[0], Origin:origin, 'Content-Type':'application/json' };
+  const aiStatus = await (await fetch(url + '/api/ai', { headers:aiHeaders })).json();
+  assert.equal(aiStatus.configured, false);
+  assert.equal((await fetch(url + '/api/ai', { method:'POST', headers:aiHeaders, body:JSON.stringify({question:'Hosila nima?'}) })).status, 503);
   const logout = await fetch(url + '/api/demo-session', { method:'DELETE', headers:{ Origin:origin } });
   assert(logout.headers.get('set-cookie').includes('Max-Age=0'));
   assert.equal((await fetch(url + '/api/demo-session', { method:'POST', headers:{ Origin:origin, 'Content-Type':'application/json' }, body:'x'.repeat(5000) })).status, 413);

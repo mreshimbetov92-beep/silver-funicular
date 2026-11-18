@@ -56,7 +56,7 @@ export default function Home() {
       <div className="brand login-brand"><span className="brand-mark"><BookOpen size={24}/><span/></span><span>idrok<span className="brand-dot">.</span></span></div>
       <div className="login-story-body"><span className="login-eyebrow"><Sparkles size={15}/> SIZGA MOSLASHADIGAN TA’LIM</span><h1>Bilim sari<br/>o‘z yo‘lingiz.</h1><p>Har bir javob — yangi imkoniyat.<br/>O‘z sur’atingizda o‘rganing va rivojlaning.</p>
         <div className="login-illustration" aria-hidden="true"><div className="login-orbit"/><span className="floating-math one">x²</span><span className="floating-math two">ƒ</span><div className="learning-preview"><div className="preview-icon"><GraduationCap size={25}/></div><span>Bugun yana bir qadam oldinga</span><strong>Sizga mos o‘quv yo‘li</strong><div className="preview-line"><i/><i/><i/><i/></div><div className="preview-bottom"><span><Check size={13}/> Bilimingizga mos</span><span>01 / 04</span></div></div><span className="floating-check"><Check size={17}/> Ajoyib natija!</span></div>
-      </div><p className="login-story-footer">Har bir o‘quvchi uchun o‘z yo‘li.</p>
+      </div><p className="login-story-footer">Har bir talaba uchun o‘z yo‘li.</p>
     </section>
     <section className="login-form-side"><div className="login-topline"><span className="demo-badge"><span/> Interaktiv demo</span><span>O‘zbekcha · UZ</span></div>
       <div className="login-card"><span className="login-welcome-icon"><LockKeyhole size={25}/></span><span className="eyebrow">SHAXSIY O‘QUV MAKONINGIZ</span><h2>Xush kelibsiz!</h2><p className="login-subtitle">Demo hisobingizga kiring va adaptiv ta’limni sinab ko‘ring.</p>
@@ -67,7 +67,7 @@ export default function Home() {
           {error&&<div className="login-error" role="alert">{error}</div>}{message&&<div className="login-message" role="status"><Check size={16}/>{message}</div>}
           <button className="primary-button login-submit" disabled={busy} type="submit">{busy?<><LoaderCircle size={17} className="spin"/> Tekshirilmoqda...</>:<>Hisobga kirish <ArrowRight size={17}/></>}</button>
         </form>}
-        <div className="login-info"><Sparkles size={18}/><p><strong>O‘rganish sizdan boshlanadi.</strong><br/>4 ta mavzu, 72 ta savol va sizga mos tavsiyalar.</p></div>
+        <div className="login-info"><Sparkles size={18}/><p><strong>O‘rganish sizdan boshlanadi.</strong><br/>Shaxsiy maqsad, adaptiv mashqlar, PDF va SI yordamchisi.</p></div>
         <p className="login-demo-note">Bu demo hisob. Mashg‘ulot natijalari shu brauzerda saqlanadi.</p>
       </div><p className="login-bottom">idrok. <span>O‘z sur’atingizda. O‘z yo‘lingizda.</span></p>
     </section>

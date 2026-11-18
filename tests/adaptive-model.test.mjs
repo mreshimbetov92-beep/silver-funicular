@@ -1,0 +1,25 @@
+import assert from 'node:assert/strict';
+import {defaultModel,recommend,nextLevel,restoreModel,safeResourceURL,profileContext} from '../src/app/adaptive-model.ts';
+import {seed} from '../src/app/data.ts';
+const model=structuredClone(defaultModel);
+assert.equal(recommend(seed,model).topic,'functions');
+assert.equal(recommend(seed,model).level,1);
+model.goal.topic='geometry';
+assert.equal(recommend(seed,model).topic,'geometry');
+assert.equal(recommend(seed,model).gap,16);
+assert.equal(recommend(seed,model).level,2);
+assert.equal(recommend({...seed,mastery:{...seed.mastery,geometry:85}},model).topic,'functions');
+model.style='visual';assert.match(recommend(seed,model).format,/Grafik/);
+for(let i=1;i<=3;i++){assert.equal(nextLevel(i,true),Math.min(3,i+1));assert.equal(nextLevel(i,false),Math.max(1,i-1))}
+assert.equal(safeResourceURL('javascript:alert(1)'),null);
+assert.equal(safeResourceURL('data:text/html,test'),null);
+assert.equal(safeResourceURL('https://user:password@example.com'),null);
+assert.equal(safeResourceURL('https://example.com/demo'),'https://example.com/demo');
+assert.deepEqual(restoreModel(null),defaultModel);
+assert.equal(restoreModel({goal:{topic:'geometry',target:900}}).goal.target,100);
+assert.equal(restoreModel({goal:{topic:'bad',target:80}}).goal.topic,'auto');
+assert.deepEqual(restoreModel({resources:[{id:'1',title:'bad',url:'javascript:alert(1)',topic:'algebra',kind:'web'}]}).resources,[]);
+const saved=structuredClone(defaultModel);saved.projects[0].submission='f prime = 3x²-3';saved.projects[0].status='submitted';saved.feedback=[{id:1,rating:2,text:'Hosila qiyin',topic:'functions'}];
+assert.deepEqual(restoreModel(JSON.parse(JSON.stringify(saved))),saved);
+const context=profileContext(seed,model);assert(!context.includes(seed.name));assert(!context.includes('gmail'));assert.equal(JSON.parse(context).maqsad.topic,'geometry');
+console.log('PASS: goal priority, mastery thresholds, adaptive boundaries, safe resource links, persistent projects/feedback, privacy-scoped AI context.');

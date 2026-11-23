@@ -1,3 +1,6 @@
+# Temporary free TEST deployment only. Local SQLite/files are lost on restart.
+# For real accounts, use a persistent host or the paid disk example below.
+# See README.md before deploying.
 services:
   - type: web
     name: idrok-adaptiv-demo
@@ -8,6 +11,8 @@ services:
     healthCheckPath: /health
     envVars:
       - key: NODE_VERSION
-        value: 24.22.1
-      - key: IDROK_DEMO_SESSION_SECRET
-        generateValue: true
+        value: 24.22.3
+      - key: IDROK_DATA_DIR
+        value: data
+      - key: IDROK_TRUST_PROXY
+        value: 1

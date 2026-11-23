@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {splitMath,renderFormula,formulaErrors} from '../src/app/math-text.ts';
+const source=String.raw`Hosila $3x^2$. Integral: $$\int_0^1 x^2\,dx=\frac13$$. \(\sqrt{x}\) va \[x^2\].`;
+const parts=splitMath(source);
+assert.equal(parts.filter(p=>p.math).length,4);
+assert.equal(parts.filter(p=>p.display).length,2);
+assert.deepEqual(formulaErrors(source),[]);
+assert.match(renderFormula(String.raw`\frac{x^2}{2}`),/class="katex"/);
+assert.match(renderFormula(String.raw`\int_0^1 x^2\,dx`,true),/katex-display/);
+assert.equal(formulaErrors(String.raw`$\unknownCommand{x}$`).length,1);
+assert.deepEqual(splitMath(String.raw`Narx: \$5`).map(p=>p.math),[false]);
+const unsafe=renderFormula(String.raw`\href{javascript:alert(1)}{x}`);
+assert(!unsafe.includes('<a '));assert(!unsafe.includes('href="javascript:'));
+assert(!renderFormula(String.raw`\text{<script>alert(1)</script>}`).includes('<script>'));
+assert.throws(()=>renderFormula(String.raw`\def\a{\a}\a`));
+console.log('PASS: inline/display LaTeX, integral/fraction rendering, escaped text, untrusted links and bounded macro expansion.');

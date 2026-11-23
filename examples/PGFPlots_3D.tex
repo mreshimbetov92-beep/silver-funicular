@@ -1,0 +1,10 @@
+\documentclass[tikz,border=8pt]{standalone}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\begin{document}
+\begin{tikzpicture}
+\begin{axis}[view={45}{30},xlabel={$x$},ylabel={$y$},zlabel={$z$}]
+\addplot3[surf,domain=-2:2,y domain=-2:2,samples=25] {exp(-x^2-y^2)};
+\end{axis}
+\end{tikzpicture}
+\end{document}

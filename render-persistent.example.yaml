@@ -1,0 +1,21 @@
+# OPTIONAL PAID deployment example. This file does not provision anything.
+# Review Render pricing; use only after you choose a paid persistent disk.
+services:
+  - type: web
+    name: idrok-adaptiv
+    runtime: node
+    plan: starter
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    disk:
+      name: idrok-data
+      mountPath: /var/data
+      sizeGB: 5
+    envVars:
+      - key: NODE_VERSION
+        value: 24.22.3
+      - key: IDROK_DATA_DIR
+        value: /var/data/idrok
+      - key: IDROK_TRUST_PROXY
+        value: 1

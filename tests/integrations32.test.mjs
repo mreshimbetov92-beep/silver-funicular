@@ -1,0 +1,24 @@
+import assert from 'node:assert/strict';
+import {embedLink,validateWork,extensionList} from '../src/shared/work-types.ts';
+import {parseTikz,tikzPresets,completeTex} from '../src/app/tikz-engine.ts';
+import {gmailAddress} from '../lib/accounts.mjs';
+const bounds={xmin:-5,xmax:6,ymin:-4,ymax:6};
+assert.equal(gmailAddress(' Test.User+abc@Gmail.com ').key,'testuser@gmail.com');
+for(const bad of ['u@gmail.com.evil','a@googlemail.com','a@yahoo.com','a@@gmail.com','a..b@gmail.com'])assert.equal(gmailAddress(bad),null);
+assert.match(embedLink('geogebra','https://www.geogebra.org/m/abcd1234').embed,/material\/iframe\/id\/abcd1234/);
+assert.match(embedLink('desmos','<iframe src="https://www.desmos.com/calculator/abcdef1234?embed" onload="alert(1)"></iframe>').embed,/desmos.com\/calculator/);
+assert.equal(embedLink('forms','https://forms.gle/Example').embed,'');
+assert.match(embedLink('forms','https://docs.google.com/forms/d/e/abc/viewform').embed,/embedded=true/);
+assert.match(embedLink('kahoot','https://create.kahoot.it/details/00000000-0000-0000-0000-000000000000').embed,/embed.kahoot.it/);
+assert.match(embedLink('phet','https://phet.colorado.edu/sims/html/graphing-lines/latest/graphing-lines_all.html').embed,/graphing-lines/);
+assert.match(embedLink('wolfram','https://www.wolframcloud.com/obj/user/notebook').embed,/wolframcloud/);
+for(const url of ['javascript:alert(1)','https://evil.test/m/abc','https://geogebra.org.evil.test/m/abc','https://x:y@www.geogebra.org/m/abc','https://www.geogebra.org:444/m/abc'])assert.throws(()=>embedLink('geogebra',url));
+assert.throws(()=>embedLink('forms','https://docs.google.com/forms/d/abc/edit'));
+assert.throws(()=>validateWork({title:'x',service:'maple',url:'',fileId:'',resultId:'',notes:''}));
+for(const ext of ['mw','mpl','nb','wl','wls','wxf','mat','ggb','sage','ipynb'])assert(extensionList.includes(ext));
+for(const code of Object.values(tikzPresets)){const d=parseTikz(code,bounds);assert(d.shapes.length>0);assert(d.labels.length>0)}
+const circle=parseTikz(String.raw`\draw[red,thick] (1,2) circle (3);`,bounds);assert.equal(circle.shapes[0].rx,3);assert.equal(circle.shapes[0].x,1);
+assert.equal(parseTikz(String.raw`\filldraw (0,0) -- (1,0) -- (0,1) -- cycle;`,bounds).shapes[0].style.fill,'#252434');
+for(const bad of [String.raw`\input{/etc/passwd};`,String.raw`\draw (0,0) -- (1,1)`,String.raw`\draw[evil] (0,0) -- (1,1);`,String.raw`\draw (0,0) circle (-1);`,String.raw`\draw[step=0] (0,0) grid (1,1);`,String.raw`\draw plot[domain=-1:1] (\x,{alert(1)});`])assert.throws(()=>parseTikz(bad,bounds));
+assert.match(completeTex(tikzPresets.circle),/documentclass/);
+console.log('PASS: validated external embeds, Gmail-only canonicalization, native format support and bounded TikZ primitives/plots/source export.');

@@ -1,9 +1,10 @@
-export type TopicId = 'algebra' | 'fractions' | 'geometry' | 'functions';
-export type Question = {id:string;topic:TopicId;level:number;text:string;options:string[];correct:number;explanation:string};
-export type Attempt = {question:Question;correct:boolean};
-export type Session = {id:number;date:string;title:string;correct:number;total:number;xp:number};
+export type TopicId = string;
+export type Topic={id:string;name:string;subtitle:string;symbol:string;color:string;time:number;theory:string[];example:string;archived?:boolean};
+export type Question = {id:string;topic:TopicId;level:number;text:string;options:string[];correct:number;explanation:string;archived?:boolean};
+export type Attempt = {question:Question;correct:boolean;selected?:number};
+export type Session = {id:number;date:string;title:string;correct:number;total:number;xp:number;answers?:Attempt[]};
 export type Profile = {name:string;goal:number;xp:number;minutes:number;mastery:Record<TopicId,number>;sessions:Session[];diagnostic:boolean};
-export const topics:{id:TopicId;name:string;subtitle:string;symbol:string;color:string;time:number;theory:string[];example:string}[] = [
+export const topics:Topic[] = [
 {id:'algebra',name:'Chiziqli tenglamalar',subtitle:'Algebra',symbol:'x',color:'purple',time:12,theory:['Tenglama — noma’lum qatnashgan tenglik. Uni yechish — tenglikni to‘g‘ri qiladigan qiymatni topish demakdir.','Tenglikning ikkala tomoniga bir xil sonni qo‘shish yoki ayirish mumkin. Ikkala tomonni nolga teng bo‘lmagan bir xil songa bo‘lish ham tenglikni saqlaydi.','ax + b = c (a ≠ 0) tenglamada avval b ni ayiramiz, keyin a ga bo‘lamiz: x = (c − b) / a.'],example:'3x + 6 = 21  →  3x = 15  →  x = 5'},
 {id:'fractions',name:'Kasrlar va foizlar',subtitle:'Arifmetika',symbol:'½',color:'orange',time:10,theory:['Kasr butunning teng qismlarini ifodalaydi. Surati olingan qismlar soni, maxraji esa butun nechta teng qismga bo‘linganini ko‘rsatadi.','Kasrlarni qo‘shish uchun ularni umumiy maxrajga keltiramiz. Kasrni kasrga ko‘paytirishda suratlar va maxrajlar o‘zaro ko‘paytiriladi.','Bir foiz — sonning yuzdan bir qismi. Sonning p foizi: son × p / 100.'],example:'80 ning 25%i = 80 × 25 / 100 = 20'},
 {id:'geometry',name:'Shakllar va yuzalar',subtitle:'Geometriya',symbol:'△',color:'green',time:15,theory:['Perimetr — shakl barcha tomonlarining uzunliklari yig‘indisi. To‘g‘ri to‘rtburchak uchun P = 2(a + b).','To‘g‘ri to‘rtburchak yuzi S = ab. Uchburchak yuzi esa asos va unga tushirilgan balandlik ko‘paytmasining yarmi: S = ah / 2.','To‘g‘ri burchakli uchburchakda katetlar kvadratlari yig‘indisi gipotenuza kvadratiga teng: a² + b² = c².'],example:'a = 3, b = 4  →  c² = 9 + 16 = 25  →  c = 5'},

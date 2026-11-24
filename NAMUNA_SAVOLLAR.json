@@ -1,0 +1,105 @@
+{
+  "version": 1,
+  "topics": [
+    {
+      "id": "analysis-derivative",
+      "name": "Hosila va uning tatbiqlari",
+      "subtitle": "Matematik analiz",
+      "symbol": "∂",
+      "color": "blue",
+      "time": 25,
+      "theory": [
+        "Hosila: $f\\prime(x)=\\lim_{h\\to0}\\frac{f(x+h)-f(x)}{h}$, agar limit mavjud bo‘lsa.",
+        "Daraja qoidasi: $(x^n)\\prime=nx^{n-1}$. Ko‘paytma: $(uv)\\prime=u\\prime v+uv\\prime$.",
+        "Zanjir qoidasi: $(f(g(x)))\\prime=f\\prime(g(x))g\\prime(x)$. Hosila ishorasi monotonlikni aniqlaydi."
+      ],
+      "example": "$f(x)=x^3-3x$. $f\\prime(x)=3x^2-3=3(x-1)(x+1)$. Funksiya $(-\\infty,-1)$ va $(1,\\infty)$ da o‘sadi, $(-1,1)$ da kamayadi."
+    }
+  ],
+  "questions": [
+    {
+      "id": "analysis-derivative-1",
+      "topic": "analysis-derivative",
+      "level": 1,
+      "text": "$f(x)=x^3$ uchun $f\\prime(x)$ ni toping.",
+      "options": [
+        "$3x^2$",
+        "$x^2$",
+        "$3x$",
+        "$x^3$"
+      ],
+      "correct": 0,
+      "explanation": "$(x^n)\\prime=nx^{n-1}$; shu sababli $(x^3)\\prime=3x^2$."
+    },
+    {
+      "id": "analysis-derivative-2",
+      "topic": "analysis-derivative",
+      "level": 1,
+      "text": "$f(x)=\\sin x$ uchun $f\\prime(x)$ ni toping.",
+      "options": [
+        "$-\\cos x$",
+        "$\\cos x$",
+        "$\\sin x$",
+        "$-\\sin x$"
+      ],
+      "correct": 1,
+      "explanation": "Asosiy hosila formulasi: $(\\sin x)\\prime=\\cos x$."
+    },
+    {
+      "id": "analysis-derivative-3",
+      "topic": "analysis-derivative",
+      "level": 2,
+      "text": "$f(x)=e^{2x}$ uchun $f\\prime(x)$ ni toping.",
+      "options": [
+        "$e^{2x}$",
+        "$2xe^{2x}$",
+        "$2e^{2x}$",
+        "$e^x$"
+      ],
+      "correct": 2,
+      "explanation": "Zanjir qoidasi: $(e^{2x})\\prime=e^{2x}\\cdot2$."
+    },
+    {
+      "id": "analysis-derivative-4",
+      "topic": "analysis-derivative",
+      "level": 2,
+      "text": "$f(x)=x\\ln x$, $x>0$. $f\\prime(x)$ ni toping.",
+      "options": [
+        "$\\ln x$",
+        "$1$",
+        "$1/x$",
+        "$\\ln x+1$"
+      ],
+      "correct": 3,
+      "explanation": "Ko‘paytma hosilasi: $f\\prime(x)=1\\cdot\\ln x+x\\cdot1/x=\\ln x+1$."
+    },
+    {
+      "id": "analysis-derivative-5",
+      "topic": "analysis-derivative",
+      "level": 3,
+      "text": "$f(x)=x^3-3x$ funksiyaning lokal minimum nuqtasi qaysi?",
+      "options": [
+        "$(1,-2)$",
+        "$(-1,2)$",
+        "$(0,0)$",
+        "$(1,2)$"
+      ],
+      "correct": 0,
+      "explanation": "$f\\prime(x)=3x^2-3$; $x=1$ da ishora manfiydan musbatga o‘tadi va $f(1)=-2$."
+    },
+    {
+      "id": "analysis-derivative-6",
+      "topic": "analysis-derivative",
+      "level": 3,
+      "text": "$y=x^2$ grafigining $x_0=2$ nuqtasidagi urinmasini toping.",
+      "options": [
+        "$y=2x$",
+        "$y=4x-4$",
+        "$y=4x+4$",
+        "$y=x+2$"
+      ],
+      "correct": 1,
+      "explanation": "$y=f(2)+f\\prime(2)(x-2)=4+4(x-2)=4x-4$."
+    }
+  ]
+}
